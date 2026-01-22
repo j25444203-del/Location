@@ -1,15 +1,33 @@
-Enter<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
-  <title>Location Check</title>
+  <title>Location</title>
 </head>
 <body>
-  <h3>جارٍ التحقق...</h3>
+<h3>جاري تحديد الموقع...</h3>
 
-  <script>
-    window.onload = function() {
-      Android.getLocation();
-    };
-  </script>
+<script>
+navigator.geolocation.getCurrentPosition(
+  function(pos) {
+    var lat = pos.coords.latitude;
+    var lon = pos.coords.longitude;
+    var time = new Date().toLocaleString();
+
+    fetch("https://YOUR_FIREBASE_URL/locations.json", {
+      method: "POST",
+      body: JSON.stringify({
+        latitude: lat,
+        longitude: lon,
+        time: time
+      })
+    });
+
+    document.body.innerHTML = "تم الإرسال ✔";
+  },
+  function() {
+    document.body.innerHTML = "لم يتم السماح بالموقع ❌";
+  }
+);
+</script>
 </body>
 </html>
