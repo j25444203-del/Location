@@ -4,29 +4,31 @@
 <h3>جاري تحديد الموقع...</h3>
 
 <script>
-const params = new URLSearchParams(window.location.search);
-const fatherId = params.get("id");
+  // ناخد المفتاح من الرابط
+  const params = new URLSearchParams(window.location.search);
+  const key = params.get("key"); // بدل id سميته key
 
-if (!fatherId) {
-  document.body.innerHTML = "لينك غير صالح";
-}
-
-navigator.geolocation.getCurrentPosition(
-  function(pos) {
-    fetch("https://location-21303-default-rtdb.firebaseio.com/.firebaseio.com/locations/" + fatherId + ".json", {
-      method: "POST",
-      body: JSON.stringify({
-        lat: pos.coords.latitude,
-        lon: pos.coords.longitude,
-        time: new Date().toLocaleString()
-      })
-    });
-    document.body.innerHTML = "تم الإرسال ✔";
-  },
-  function() {
-    document.body.innerHTML = "تم رفض الموقع ❌";
+  if (!key) {
+    document.body.innerHTML = "لينك غير صالح";
   }
-);
+
+  // ناخد الموقع
+  navigator.geolocation.getCurrentPosition(
+    function(pos) {
+      fetch("https://location-21303-default-rtdb.firebaseio.com/.firebaseio.com/locations/" + key + ".json", {
+        method: "POST",
+        body: JSON.stringify({
+          lat: pos.coords.latitude,
+          lon: pos.coords.longitude,
+          time: new Date().toLocaleString()
+        })
+      });
+      document.body.innerHTML = "تم الإرسال ✔";
+    },
+    function() {
+      document.body.innerHTML = "تم رفض الموقع ❌";
+    }
+  );
 </script>
 
 </body>
