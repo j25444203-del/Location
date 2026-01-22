@@ -1,33 +1,33 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Location</title>
-</head>
 <body>
 <h3>جاري تحديد الموقع...</h3>
 
 <script>
+const params = new URLSearchParams(window.location.search);
+const fatherId = params.get("id");
+
+if (!fatherId) {
+  document.body.innerHTML = "لينك غير صالح";
+}
+
 navigator.geolocation.getCurrentPosition(
   function(pos) {
-    var lat = pos.coords.latitude;
-    var lon = pos.coords.longitude;
-    var time = new Date().toLocaleString();
-
-    fetch("https://YOUR_FIREBASE_URL/locations.json", {
+    fetch("https://location-21303-default-rtdb.firebaseio.com/.firebaseio.com/locations/" + fatherId + ".json", {
       method: "POST",
       body: JSON.stringify({
-        latitude: lat,
-        longitude: lon,
-        time: time
+        lat: pos.coords.latitude,
+        lon: pos.coords.longitude,
+        time: new Date().toLocaleString()
       })
     });
-
     document.body.innerHTML = "تم الإرسال ✔";
   },
   function() {
-    document.body.innerHTML = "لم يتم السماح بالموقع ❌";
+    document.body.innerHTML = "تم رفض الموقع ❌";
   }
 );
 </script>
+
 </body>
 </html>
